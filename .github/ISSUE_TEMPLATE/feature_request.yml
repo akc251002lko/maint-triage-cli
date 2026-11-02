@@ -1,0 +1,55 @@
+name: Feature Request
+description: Suggest a new feature or improvement for Maint Triage CLI.
+title: "[FEATURE] "
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for suggesting an improvement.
+        Please explain the problem and how your proposed feature would help.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or Use Case
+      description: What problem are you trying to solve?
+      placeholder: Describe the problem or limitation.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed-solution
+    attributes:
+      label: Proposed Solution
+      description: Describe the feature or improvement you would like.
+      placeholder: Explain how the feature should work.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: Have you considered any alternative solutions?
+      placeholder: Describe any alternatives you considered.
+    validations:
+      required: false
+
+  - type: textarea
+    id: benefits
+    attributes:
+      label: Expected Benefits
+      description: Explain how this feature would improve the project.
+      placeholder: Describe the expected benefits.
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Add examples, screenshots, or other relevant information.
+    validations:
+      required: false
