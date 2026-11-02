@@ -1,149 +1,79 @@
-Contributing to Maint Triage CLI
+# Code of Conduct
 
-Thank you for your interest in contributing to Maint Triage CLI!
+## Our Commitment
 
-We welcome bug reports, feature suggestions, documentation improvements, and code contributions that help make this project more reliable and useful.
+We are committed to providing a welcoming, respectful, and professional environment for everyone participating in the Maint Triage CLI project.
 
-Please read these guidelines before submitting a contribution.
+We welcome contributions from people of all backgrounds, experience levels, and skill sets. Every participant is expected to communicate respectfully and contribute constructively.
 
----
+## Expected Behaviour
 
-1. Code of Conduct
+All project participants are expected to:
 
-All contributors are expected to maintain a respectful, constructive, and professional environment.
+- Be respectful, professional, and considerate.
+- Use clear and constructive language.
+- Accept feedback and differing technical opinions professionally.
+- Focus discussions on ideas, code, and project improvements.
+- Provide helpful and actionable feedback.
+- Respect the time, effort, and contributions of others.
+- Maintain a collaborative and inclusive environment.
 
-Please review our "Code of Conduct" (CODE_OF_CONDUCT.md).
+## Unacceptable Behaviour
 
-2. Ways to Contribute
+The following behaviours are not acceptable:
 
-You can contribute in several ways:
+- Harassment, discrimination, or personal attacks.
+- Insulting, threatening, or deliberately intimidating others.
+- Trolling, provocation, or disruptive behaviour.
+- Publishing private information without permission.
+- Repeatedly disrupting technical discussions.
+- Any conduct that creates an unsafe or hostile environment.
 
-- Report bugs and unexpected behavior.
-- Suggest new features and improvements.
-- Improve documentation and examples.
-- Add automated tests.
-- Improve error handling and API reliability.
-- Optimize performance and maintainability.
-- Review proposed changes.
+## Scope
 
-3. Reporting Bugs
+This Code of Conduct applies to all project spaces, including:
 
-Before reporting a bug:
+- GitHub Issues.
+- Pull Requests.
+- Code reviews.
+- Discussions related to the project.
+- Other communication channels used for project activities.
 
-1. Check whether the issue has already been reported.
-2. Confirm that you are using a supported Python version.
-3. Verify that the repository name and command-line arguments are valid.
-4. Include the steps required to reproduce the problem.
+## Reporting Issues
 
-When reporting a bug, provide:
+If you experience or observe unacceptable behaviour, report it privately to the project maintainer through GitHub.
 
-- A clear description of the problem.
-- The command you executed.
-- Expected behavior.
-- Actual behavior.
-- Python version and operating system.
-- Relevant error messages.
+Reports should include relevant details, such as:
 
-Never include access tokens, passwords, or other sensitive information in bug reports.
+- A description of the incident.
+- Links to relevant Issues, Pull Requests, or comments.
+- Any additional information that may help clarify the situation.
 
-4. Suggesting Features
+All reports will be reviewed fairly and handled with appropriate discretion.
 
-Feature suggestions should explain:
+## Enforcement
 
-- The problem the feature solves.
-- Why the feature would be useful.
-- How the proposed functionality should work.
-- Any potential compatibility or maintenance considerations.
+The project maintainer is responsible for enforcing this Code of Conduct.
 
-Keep proposals focused and consistent with the project's purpose.
+Depending on the severity and circumstances of a violation, possible actions include:
 
-5. Development Guidelines
+1. A warning requesting that the behaviour stop.
+2. Removal of inappropriate comments or content.
+3. Temporary restriction from participating in project spaces.
+4. Permanent exclusion from project participation.
 
-Maint Triage CLI is designed to remain lightweight and dependency-free.
+Enforcement decisions will be made based on the nature and severity of the behaviour.
 
-Contributions should follow these principles:
+## Maintaining a Professional Environment
 
-- Use Python's standard library wherever possible.
-- Maintain compatibility with Python 3.9 and newer.
-- Follow PEP 8 conventions.
-- Prefer clear, readable, maintainable code.
-- Use descriptive function and variable names.
-- Handle expected errors explicitly.
-- Avoid unnecessary complexity.
-- Never commit credentials or personal access tokens.
+Maint Triage CLI is a technical project focused on repository maintenance and issue triage.
 
-6. Testing Requirements
+Contributions should remain relevant to the project's goals. Technical disagreements are acceptable when handled respectfully and supported by clear reasoning.
 
-All meaningful code changes should include appropriate automated tests.
+## Acknowledgement
 
-Run the test suite:
-
-python -m unittest discover -s tests -v
-
-Validate Python syntax:
-
-python -m py_compile triage.py tests/test_triage.py
-
-Ensure existing tests continue to pass before submitting changes.
-
-7. Pull Request Guidelines
-
-Before submitting a pull request:
-
-1. Make sure your changes have a clear purpose.
-2. Keep changes focused and reasonably small.
-3. Add or update tests where appropriate.
-4. Update documentation when functionality changes.
-5. Verify that automated checks pass.
-
-Provide a clear pull request description containing:
-
-- What changed.
-- Why the change was necessary.
-- How the changes were tested.
-- Any relevant issue references.
-
-8. Commit Message Guidelines
-
-Use clear, descriptive commit messages.
-
-Recommended prefixes:
-
-Prefix| Purpose
-"feat:"| New functionality
-"fix:"| Bug fixes
-"docs:"| Documentation changes
-"test:"| Test improvements
-"refactor:"| Code restructuring
-"chore:"| Maintenance tasks
-
-Examples:
-
-feat: add issue priority analysis
-fix: handle GitHub API rate limits
-docs: improve usage instructions
-test: expand pagination coverage
-
-9. Compatibility
-
-Contributions must preserve compatibility with Python 3.9 and newer.
-
-Avoid introducing third-party dependencies unless a change has been explicitly discussed and approved.
-
-10. Scope of the Project
-
-Maint Triage CLI focuses on analyzing open GitHub issues and pull requests and producing actionable maintenance reports.
-
-Contributions should support this purpose.
-
-The tool should remain read-only unless a future feature is explicitly designed and reviewed to support repository modifications.
-
-11. Questions and Support
-
-For questions, bug reports, or feature discussions, please use the repository's GitHub Issues section.
-
-Thank you for helping improve Maint Triage CLI!
+By participating in the Maint Triage CLI project, you agree to follow this Code of Conduct.
 
 ---
 
-Maint Triage CLI — Better visibility. Smarter triage. Healthier repositories.
+**Maintained by:** Maint Triage CLI Project Maintainer
