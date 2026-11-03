@@ -17,6 +17,10 @@ It analyzes open issues and pull requests, identifies items requiring attention,
 
 The tool uses GitHub's REST API and Python's standard library. No third-party packages are required.
 
+## What Is This Repository For?
+
+This repository provides maintainers with a read-only way to identify GitHub issues and pull requests that may need attention. Use it to create a repeatable maintenance snapshot before planning triage work. It reports findings; it does not change labels, close issues, or modify pull requests.
+
 ## Features
 
 - **Missing-label detection:** Identify open issues without labels.
@@ -54,7 +58,7 @@ Navigate into the project:
 cd maint-triage-cli
 ```
 
-## Usage
+## How to Use
 
 Run the tool using Python:
 
