@@ -9,6 +9,7 @@ Uses only Python's standard library.
 
 import argparse
 import json
+import logging
 import os
 import re
 import sys
@@ -17,11 +18,13 @@ import urllib.parse
 import urllib.request
 
 from datetime import datetime, timezone
+from typing import Any
 
 
 API = "https://api.github.com"
 TIMEOUT = 30
 PER_PAGE = 100
+logger = logging.getLogger("maint_triage_cli")
 
 
 class TriageError(Exception):
@@ -67,7 +70,7 @@ def validate_repo(repo):
     return owner, name
 
 
-def github_get(url, token=None):
+def github_get(url: str, token: str | None = None) -> tuple[Any, str]:
     """Fetch one GitHub API page."""
 
     headers = {
@@ -80,6 +83,7 @@ def github_get(url, token=None):
         headers["Authorization"] = f"Bearer {token}"
 
     request = urllib.request.Request(url, headers=headers)
+    logger.debug("GitHub API GET %s", url)
 
     try:
         with urllib.request.urlopen(
@@ -157,6 +161,33 @@ def fetch_open_items(owner, name, token=None):
     return all_items
 
 
+def fetch_open_pull_requests(owner: str, name: str, token: str | None = None) -> list[dict[str, Any]]:
+    """Fetch open PRs with reviewer, draft, and head-commit metadata."""
+    owner_q = urllib.parse.quote(owner, safe="")
+    name_q = urllib.parse.quote(name, safe="")
+    url = f"{API}/repos/{owner_q}/{name_q}/pulls?state=open&per_page={PER_PAGE}"
+    results: list[dict[str, Any]] = []
+    while url:
+        data, link_header = github_get(url, token)
+        if not isinstance(data, list):
+            raise TriageError("Unexpected pull request API response.")
+        results.extend(data)
+        match = re.search(r'<([^>]+)>;\\s*rel="next"', link_header)
+        url = match.group(1) if match else None
+    for item in results:
+        item["pull_request"] = item.get("pull_request", {"url": item.get("url", "")})
+        head = item.get("head", {}).get("sha")
+        item["ci_state"] = "unknown"
+        if head:
+            status_url = f"{API}/repos/{owner_q}/{name_q}/commits/{urllib.parse.quote(head, safe='')}/status"
+            try:
+                status, _ = github_get(status_url, token)
+                if isinstance(status, dict):
+                    item["ci_state"] = str(status.get("state", "unknown"))
+            except TriageError as error:
+                logger.warning("Could not inspect CI status for PR #%s: %s", item.get("number"), error)
+    return results
+
 def days_since(timestamp, now=None):
     """Calculate the age of the last update in whole days."""
 
@@ -178,7 +209,7 @@ def days_since(timestamp, now=None):
         )
 
 
-def classify_items(items, threshold, now):
+def classify_items(items: list[dict[str, Any]], threshold: int, now: datetime) -> dict[str, list[dict[str, Any]]]:
     """Categorize issues and pull requests."""
 
     issues = [
@@ -210,12 +241,22 @@ def classify_items(items, threshold, now):
         item for item in prs
         if item.get("draft") is True
     ]
+    review_bottlenecks = [
+        item for item in prs
+        if item.get("requested_reviewers")
+    ]
+    ci_attention = [
+        item for item in prs
+        if str(item.get("ci_state", "unknown")).lower() in ("failure", "error", "pending")
+    ]
 
     return {
         "missing_labels": missing_labels,
         "stale_issues": stale_issues,
         "stale_prs": stale_prs,
         "draft_prs": drafts,
+        "review_bottlenecks": review_bottlenecks,
+        "ci_attention": ci_attention,
     }
 
 
@@ -332,6 +373,8 @@ def render_report(report, output_format):
             (f"Stale Issues (>= {threshold} days)", "stale_issues"),
             (f"Stale Pull Requests (>= {threshold} days)", "stale_prs"),
             ("Draft Pull Requests", "draft_prs"),
+            ("Review Bottlenecks", "review_bottlenecks"),
+            ("CI Attention Required", "ci_attention"),
         ]
 
         for title, key in titles:
@@ -353,6 +396,8 @@ def render_report(report, output_format):
         (f"Stale Issues (>= {threshold} days)", "stale_issues"),
         (f"Stale Pull Requests (>= {threshold} days)", "stale_prs"),
         ("Draft Pull Requests", "draft_prs"),
+        ("Review Bottlenecks", "review_bottlenecks"),
+        ("CI Attention Required", "ci_attention"),
     ]
 
     for title, key in titles:
@@ -397,7 +442,8 @@ def display_terminal_report(report):
     print()
 
 
-def main():
+def main() -> int:
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
     parser = argparse.ArgumentParser(
         prog="maint-triage-cli",
         description=(
@@ -447,6 +493,8 @@ def main():
         now = datetime.now(timezone.utc)
 
         items = fetch_open_items(owner, name, token)
+        rich_prs = fetch_open_pull_requests(owner, name, token)
+        items = [item for item in items if "pull_request" not in item] + rich_prs
 
         categories = classify_items(
             items,
