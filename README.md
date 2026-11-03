@@ -237,6 +237,10 @@ Contributions, bug reports, and feature suggestions are welcome.
 
 Please review the contribution guidelines before submitting changes.
 
+## Community & Support
+
+For official project announcements, release and repository updates, technical discussions, questions, and collaboration, join the [Telegram community](https://t.me/githubakc251002lko).
+
 ## License
 
 This project is distributed under the MIT License. See [LICENSE](LICENSE) for details.
@@ -244,7 +248,3 @@ This project is distributed under the MIT License. See [LICENSE](LICENSE) for de
 ---
 
 **maint-triage-cli** — Better visibility. Smarter triage. Healthier repositories.
-
-## Community
-
-For project announcements, repository updates, technical discussions, questions, and collaboration, visit the [official Telegram channel](https://t.me/githubakc251002lko).
