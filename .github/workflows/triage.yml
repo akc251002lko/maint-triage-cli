@@ -1,35 +1,46 @@
-name: Weekly Maintainer Triage
+name: Scheduled Maintainer Triage
 
 on:
   push:
+    branches: [main, master]
   schedule:
-    # Runs every Monday at 00:00 UTC
-    - cron: '0 0 * * 1'
-  # Allows you to run this workflow manually from the Actions tab
+    - cron: "0 8 * * 1"
   workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: read
+  statuses: read
+
+concurrency:
+  group: maint-triage-report-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   triage:
     runs-on: ubuntu-latest
-
+    timeout-minutes: 10
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: "3.12"
 
-      - name: Run Triage Script
+      - name: Generate triage report
         env:
-          # This automatically provides a token so the script doesn't hit rate limits
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TARGET_REPOSITORY: ${{ github.repository }}
         run: |
-          python triage.py --repo ${{ github.repository }} --days 30 > triage_report.md
-          cat triage_report.md
+          python triage.py --repo "$TARGET_REPOSITORY" --days 30 --format markdown > triage_report.md
+          cat triage_report.md >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Add Report to Action Summary
-        run: |
-          echo "## Weekly Triage Report" >> $GITHUB_STEP_SUMMARY
-          cat triage_report.md >> $GITHUB_STEP_SUMMARY
+      - name: Upload triage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: maintainer-triage-report
+          path: triage_report.md
+          if-no-files-found: error
+          retention-days: 14

@@ -293,3 +293,52 @@ class TestPagination(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestReviewAndCiIntelligence(unittest.TestCase):
+
+    def setUp(self):
+        self.now = datetime(2026, 11, 2, 12, 0, tzinfo=timezone.utc)
+
+    def test_requested_reviewers_are_flagged(self):
+        item = {
+            "number": 10,
+            "title": "Needs review",
+            "html_url": "https://github.com/example/project/pull/10",
+            "updated_at": "2026-11-01T12:00:00Z",
+            "labels": [],
+            "pull_request": {"url": "https://api.github.com/pulls/10"},
+            "requested_reviewers": [{"login": "reviewer"}],
+            "draft": False,
+            "ci_state": "success",
+        }
+        result = classify_items([item], 30, self.now)
+        self.assertEqual(len(result["review_bottlenecks"]), 1)
+
+    def test_failed_ci_is_flagged(self):
+        item = {
+            "number": 11,
+            "title": "CI failing",
+            "html_url": "https://github.com/example/project/pull/11",
+            "updated_at": "2026-11-01T12:00:00Z",
+            "labels": [],
+            "pull_request": {"url": "https://api.github.com/pulls/11"},
+            "requested_reviewers": [],
+            "draft": False,
+            "ci_state": "failure",
+        }
+        result = classify_items([item], 30, self.now)
+        self.assertEqual(len(result["ci_attention"]), 1)
+
+    def test_report_contains_new_intelligence_counts(self):
+        categories = {
+            "missing_labels": [],
+            "stale_issues": [],
+            "stale_prs": [],
+            "draft_prs": [],
+            "review_bottlenecks": [],
+            "ci_attention": [],
+        }
+        report = build_report("example/project", categories, 30, self.now)
+        self.assertEqual(report["summary"]["review_bottlenecks"], 0)
+        self.assertEqual(report["summary"]["ci_attention"], 0)

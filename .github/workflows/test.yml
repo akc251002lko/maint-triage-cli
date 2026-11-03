@@ -1,39 +1,30 @@
-name: Maint Triage CLI Tests
+name: Maint Triage CLI CI
 
 on:
   push:
-    branches:
-      - main
-      - master
-
+    branches: [main, master, "upgrade/maintenance-intelligence-2026-11"]
   pull_request:
-    branches:
-      - main
-      - master
-
+    branches: [main, master]
   workflow_dispatch:
 
 permissions:
   contents: read
 
+concurrency:
+  group: maint-triage-ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
-    name: Python ${{ matrix.python-version }} Tests
-
-    runs-on: ubuntu-24.04
-
+    name: Python ${{ matrix.python-version }}
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        python-version:
-          - "3.9"
-          - "3.10"
-          - "3.11"
-          - "3.12"
-          - "3.13"
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
 
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Set up Python
@@ -41,13 +32,11 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Check Python version
-        run: python --version
-
-      - name: Check Python syntax
-        run: |
-          python -m py_compile triage.py tests/test_triage.py
+      - name: Compile source and tests
+        run: python -m py_compile triage.py tests/test_triage.py
 
       - name: Run unit tests
-        run: |
-          python -m unittest discover -s tests -v
+        run: python -m unittest discover -s tests -v
+
+      - name: CLI help smoke test
+        run: python triage.py --help
