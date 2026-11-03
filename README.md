@@ -23,6 +23,9 @@ The tool uses GitHub's REST API and Python's standard library. No third-party pa
 - **Stale issue detection:** Find issues that have not been updated within a configurable period.
 - **Stale pull request detection:** Identify inactive pull requests.
 - **Draft PR tracking:** Find pull requests still marked as drafts.
+- **Review bottlenecks:** Surface pull requests with outstanding requested reviewers.
+- **CI attention:** Flag pull requests whose combined commit status is pending, failing, or errored.
+- **Authenticated API access:** Use GITHUB_TOKEN for higher rate limits and repositories the token can access.
 - **Automatic pagination:** Retrieve results across multiple GitHub API pages.
 - **Multiple output formats:** Generate Markdown, text, and JSON reports.
 - **Optional authentication:** Support GitHub tokens through environment variables.
@@ -220,7 +223,9 @@ The application follows a lightweight, standard-library-only architecture.
 - Staleness is based on the last update timestamp.
 - Stale items are identified, not automatically closed.
 - The tool does not modify repositories or GitHub issues.
-- It does not currently evaluate PR approvals, CI status, or requested reviewers.
+- Review and CI signals depend on GitHub API permissions and the status data exposed by the repository.
+- CI attention uses commit combined status; repositories relying exclusively on GitHub Checks may show an unknown status.
+- The tool reports findings only and does not automatically close issues, merge PRs, or change labels.
 
 ## Contributing
 
