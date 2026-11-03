@@ -172,7 +172,7 @@ def fetch_open_pull_requests(owner: str, name: str, token: str | None = None) ->
         if not isinstance(data, list):
             raise TriageError("Unexpected pull request API response.")
         results.extend(data)
-        match = re.search(r'<([^>]+)>;\\s*rel="next"', link_header)
+        match = re.search(r'<([^>]+)>;\s*rel="next"', link_header)
         url = match.group(1) if match else None
     for item in results:
         item["pull_request"] = item.get("pull_request", {"url": item.get("url", "")})
@@ -287,6 +287,9 @@ def build_report(repo, categories, threshold, now):
             format_item(item, now)
             for item in items
         ]
+
+    for key in ("missing_labels", "stale_issues", "stale_prs", "draft_prs", "review_bottlenecks", "ci_attention"):
+        sections.setdefault(key, [])
 
     total_open = sum(len(items) for items in categories.values())
 
