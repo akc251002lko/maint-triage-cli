@@ -3,7 +3,7 @@
 
 **A zero-dependency Python CLI for analyzing GitHub repository maintenance activity and generating actionable triage reports.**
 
-![Python](https://img.shields.io/badge/Python-3.9%2B-blue)
+![Python](https://img.shields.io/badge/Python-3.10%2B-blue)
 ![Dependencies](https://img.shields.io/badge/Dependencies-None-success)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
@@ -34,7 +34,7 @@ The tool uses GitHub's REST API and Python's standard library. No third-party pa
 
 ## Requirements
 
-- Python 3.9 or newer.
+- Python 3.10 or newer.
 - Internet connection.
 - Access to the GitHub REST API.
 
