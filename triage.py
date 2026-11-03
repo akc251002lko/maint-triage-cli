@@ -304,6 +304,8 @@ def build_report(repo, categories, threshold, now):
             "stale_issues": len(sections["stale_issues"]),
             "stale_pull_requests": len(sections["stale_prs"]),
             "draft_pull_requests": len(sections["draft_prs"]),
+            "review_bottlenecks": len(sections["review_bottlenecks"]),
+            "ci_attention": len(sections["ci_attention"]),
         },
         "sections": sections,
     }
