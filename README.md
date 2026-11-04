@@ -248,10 +248,6 @@ Contributions, bug reports, and feature suggestions are welcome.
 
 Please review [CONTRIBUTING.md](CONTRIBUTING.md) before submitting changes.
 
-## Community & Support
-
-For official project announcements, release and repository updates, technical discussions, questions, and collaboration, join the [Telegram community](https://t.me/githubakc251002lko).
-
 ## License
 
 This project is distributed under the MIT License. See [LICENSE](LICENSE) for details.
