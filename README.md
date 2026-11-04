@@ -3,7 +3,7 @@
 
 **A zero-dependency Python CLI for analyzing GitHub repository maintenance activity and generating actionable triage reports.**
 
-![Python](https://img.shields.io/badge/Python-3.10%2B-blue)
+![Python](https://img.shields.io/badge/Python-3.11%2B-blue)
 ![Dependencies](https://img.shields.io/badge/Dependencies-None-success)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
@@ -38,7 +38,7 @@ This repository provides maintainers with a read-only way to identify GitHub iss
 
 ## Requirements
 
-- Python 3.10 or newer.
+- Python 3.11 or newer.
 - Internet connection.
 - Access to the GitHub REST API.
 
