@@ -348,7 +348,7 @@ class TestReviewAndCiIntelligence(unittest.TestCase):
             "check_runs": [{"status": "in_progress", "conclusion": None}]
         }, "")
         self.assertEqual(fetch_ci_state("psf", "requests", "abc123"), "pending")
-        self.assertEqual(mock_get.call_count, 1)
+        self.assertEqual(mock_get.call_count, 2)
 
     @patch("triage.github_get")
     def test_empty_check_runs_fall_back_to_commit_status(self, mock_get):
