@@ -1,6 +1,8 @@
 
 import json
 import unittest
+from contextlib import redirect_stdout
+from io import StringIO
 
 from datetime import datetime, timedelta, timezone
 from unittest.mock import patch
@@ -13,6 +15,7 @@ from triage import (
     build_report,
     render_report,
     fetch_open_items,
+    display_terminal_report,
 )
 
 
@@ -342,3 +345,24 @@ class TestReviewAndCiIntelligence(unittest.TestCase):
         report = build_report("example/project", categories, 30, self.now)
         self.assertEqual(report["summary"]["review_bottlenecks"], 0)
         self.assertEqual(report["summary"]["ci_attention"], 0)
+
+
+class TestTerminalSummary(unittest.TestCase):
+    def test_displays_review_and_ci_attention_counts(self):
+        now = datetime(2026, 11, 2, 12, 0, tzinfo=timezone.utc)
+        categories = {
+            "missing_labels": [],
+            "stale_issues": [],
+            "stale_prs": [],
+            "draft_prs": [],
+            "review_bottlenecks": [{"number": 1, "title": "Review", "updated_at": now.isoformat()}],
+            "ci_attention": [{"number": 2, "title": "CI", "updated_at": now.isoformat()}],
+        }
+        report = build_report("example/project", categories, 30, now)
+        output = StringIO()
+        with redirect_stdout(output):
+            display_terminal_report(report)
+        rendered = output.getvalue()
+        self.assertIn("Review bottlenecks", rendered)
+        self.assertIn("CI attention", rendered)
+
