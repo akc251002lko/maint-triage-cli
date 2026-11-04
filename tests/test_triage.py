@@ -340,7 +340,7 @@ class TestReviewAndCiIntelligence(unittest.TestCase):
             "check_runs": [{"status": "completed", "conclusion": "failure"}]
         }, "")
         self.assertEqual(fetch_ci_state("psf", "requests", "abc123"), "failure")
-        self.assertEqual(mock_get.call_count, 1)
+        self.assertEqual(mock_get.call_count, 2)
 
     @patch("triage.github_get")
     def test_check_run_in_progress_is_pending(self, mock_get):
@@ -368,6 +368,16 @@ class TestReviewAndCiIntelligence(unittest.TestCase):
         with redirect_stdout(output):
             self.assertEqual(main(), 0)
         self.assertTrue(output.getvalue().startswith("# Triage Report: psf/requests"))
+
+
+    @patch("triage.github_get")
+    def test_failed_commit_status_overrides_successful_check_runs(self, mock_get):
+        mock_get.side_effect = [
+            ({"check_runs": [{"status": "completed", "conclusion": "success"}]}, ""),
+            ({"state": "failure"}, ""),
+        ]
+        self.assertEqual(fetch_ci_state("psf", "requests", "abc123"), "failure")
+        self.assertEqual(mock_get.call_count, 2)
 
     def test_report_contains_new_intelligence_counts(self):
         categories = {
