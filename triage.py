@@ -162,10 +162,11 @@ def fetch_open_items(owner, name, token=None):
 
 
 def fetch_ci_state(owner: str, name: str, head_sha: str, token: str | None = None) -> str:
-    """Return aggregate GitHub Actions check state, falling back to commit statuses."""
+    """Combine GitHub Actions check runs and legacy commit status contexts."""
     owner_q = urllib.parse.quote(owner, safe="")
     name_q = urllib.parse.quote(name, safe="")
     commit_q = urllib.parse.quote(head_sha, safe="")
+    check_state = "unknown"
     checks_url = f"{API}/repos/{owner_q}/{name_q}/commits/{commit_q}/check-runs?per_page=100"
     try:
         all_checks: list[dict[str, Any]] = []
@@ -181,23 +182,33 @@ def fetch_ci_state(owner: str, name: str, head_sha: str, token: str | None = Non
         if all_checks:
             failures = {"failure", "timed_out", "cancelled", "action_required", "stale", "startup_failure"}
             if any(str(check.get("conclusion", "")).lower() in failures for check in all_checks):
-                return "failure"
-            if any(
+                check_state = "failure"
+            elif any(
                 check.get("status") != "completed" or not check.get("conclusion")
                 for check in all_checks
             ):
-                return "pending"
-            return "success"
+                check_state = "pending"
+            else:
+                check_state = "success"
     except TriageError as error:
         logger.warning("Could not inspect check runs for commit %s: %s", head_sha, error)
 
+    status_state = "unknown"
     status_url = f"{API}/repos/{owner_q}/{name_q}/commits/{commit_q}/status"
     try:
         status, _ = github_get(status_url, token)
         if isinstance(status, dict):
-            return str(status.get("state", "unknown")).lower()
+            status_state = str(status.get("state", "unknown")).lower()
     except TriageError as error:
         logger.warning("Could not inspect commit status for %s: %s", head_sha, error)
+
+    states = {check_state, status_state}
+    if states.intersection({"failure", "error"}):
+        return "failure"
+    if "pending" in states:
+        return "pending"
+    if "success" in states:
+        return "success"
     return "unknown"
 
 
