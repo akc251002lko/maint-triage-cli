@@ -294,8 +294,6 @@ class TestPagination(unittest.TestCase):
         self.assertEqual(mock_get.call_count, 2)
 
 
-if __name__ == "__main__":
-    unittest.main()
 
 
 class TestReviewAndCiIntelligence(unittest.TestCase):
@@ -366,3 +364,6 @@ class TestTerminalSummary(unittest.TestCase):
         self.assertIn("Review bottlenecks", rendered)
         self.assertIn("CI attention", rendered)
 
+
+if __name__ == "__main__":
+    unittest.main()
