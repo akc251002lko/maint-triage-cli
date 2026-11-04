@@ -172,8 +172,12 @@ The actual counts depend on the selected repository and the time of analysis.
 maint-triage-cli/
 │
 ├── .github/
+│   ├── ISSUE_TEMPLATE/
+│   │   ├── bug_report.yml
+│   │   └── feature_request.yml
 │   └── workflows/
-│       └── test.yml
+│       ├── test.yml
+│       └── triage.yml
 │
 ├── tests/
 │   └── test_triage.py
