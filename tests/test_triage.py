@@ -355,8 +355,8 @@ class TestTerminalSummary(unittest.TestCase):
             "stale_issues": [],
             "stale_prs": [],
             "draft_prs": [],
-            "review_bottlenecks": [{"number": 1, "title": "Review", "updated_at": now.isoformat()}],
-            "ci_attention": [{"number": 2, "title": "CI", "updated_at": now.isoformat()}],
+            "review_bottlenecks": [{"number": 1, "title": "Review", "html_url": "https://github.com/example/project/pull/1", "updated_at": now.isoformat(), "labels": []}],
+            "ci_attention": [{"number": 2, "title": "CI", "html_url": "https://github.com/example/project/pull/2", "updated_at": now.isoformat(), "labels": []}],
         }
         report = build_report("example/project", categories, 30, now)
         output = StringIO()
