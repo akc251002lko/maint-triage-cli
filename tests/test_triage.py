@@ -1,6 +1,7 @@
 
 import json
 import unittest
+from unittest.mock import Mock
 from contextlib import redirect_stdout
 from io import StringIO
 
@@ -9,6 +10,8 @@ from unittest.mock import patch
 
 from triage import (
     TriageError,
+    MAX_RESPONSE_BYTES,
+    github_get,
     validate_repo,
     days_since,
     classify_items,
@@ -20,6 +23,16 @@ from triage import (
     main,
 )
 
+
+
+class TestGitHubResponseSafety(unittest.TestCase):
+    @patch("triage.urllib.request.urlopen")
+    def test_oversized_response_is_rejected(self, mock_urlopen):
+        response = Mock()
+        response.read.return_value = b"x" * (MAX_RESPONSE_BYTES + 1)
+        mock_urlopen.return_value.__enter__.return_value = response
+        with self.assertRaisesRegex(TriageError, "25 MiB safety limit"):
+            github_get("https://api.github.com/repos/psf/requests")
 
 class TestRepositoryValidation(unittest.TestCase):
 
