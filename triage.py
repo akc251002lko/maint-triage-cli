@@ -291,8 +291,6 @@ def build_report(repo, categories, threshold, now):
     for key in ("missing_labels", "stale_issues", "stale_prs", "draft_prs", "review_bottlenecks", "ci_attention"):
         sections.setdefault(key, [])
 
-    total_open = sum(len(items) for items in categories.values())
-
     return {
         "repository": repo,
         "generated_at": now.strftime("%Y-%m-%dT%H:%M:%SZ"),
@@ -434,6 +432,8 @@ def display_terminal_report(report):
         ("Stale issues", "stale_issues"),
         ("Stale pull requests", "stale_pull_requests"),
         ("Draft pull requests", "draft_pull_requests"),
+        ("Review bottlenecks", "review_bottlenecks"),
+        ("CI attention", "ci_attention"),
     ]
 
     for label, key in labels:
