@@ -15,6 +15,7 @@ from triage import (
     build_report,
     render_report,
     fetch_open_items,
+    fetch_ci_state,
     display_terminal_report,
 )
 
@@ -330,6 +331,32 @@ class TestReviewAndCiIntelligence(unittest.TestCase):
         }
         result = classify_items([item], 30, self.now)
         self.assertEqual(len(result["ci_attention"]), 1)
+
+
+    @patch("triage.github_get")
+    def test_check_run_failure_is_detected(self, mock_get):
+        mock_get.return_value = ({
+            "check_runs": [{"status": "completed", "conclusion": "failure"}]
+        }, "")
+        self.assertEqual(fetch_ci_state("psf", "requests", "abc123"), "failure")
+        self.assertEqual(mock_get.call_count, 1)
+
+    @patch("triage.github_get")
+    def test_check_run_in_progress_is_pending(self, mock_get):
+        mock_get.return_value = ({
+            "check_runs": [{"status": "in_progress", "conclusion": None}]
+        }, "")
+        self.assertEqual(fetch_ci_state("psf", "requests", "abc123"), "pending")
+        self.assertEqual(mock_get.call_count, 1)
+
+    @patch("triage.github_get")
+    def test_empty_check_runs_fall_back_to_commit_status(self, mock_get):
+        mock_get.side_effect = [
+            ({"check_runs": []}, ""),
+            ({"state": "success"}, ""),
+        ]
+        self.assertEqual(fetch_ci_state("psf", "requests", "abc123"), "success")
+        self.assertEqual(mock_get.call_count, 2)
 
     def test_report_contains_new_intelligence_counts(self):
         categories = {
