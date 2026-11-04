@@ -168,21 +168,23 @@ def fetch_ci_state(owner: str, name: str, head_sha: str, token: str | None = Non
     commit_q = urllib.parse.quote(head_sha, safe="")
     checks_url = f"{API}/repos/{owner_q}/{name_q}/commits/{commit_q}/check-runs?per_page=100"
     try:
-        payload, _ = github_get(checks_url, token)
-        check_runs = payload.get("check_runs") if isinstance(payload, dict) else None
-        if isinstance(check_runs, list) and check_runs:
+        all_checks: list[dict[str, Any]] = []
+        next_url: str | None = checks_url
+        while next_url:
+            payload, link_header = github_get(next_url, token)
+            check_runs = payload.get("check_runs") if isinstance(payload, dict) else None
+            if not isinstance(check_runs, list):
+                raise TriageError("Unexpected GitHub check-runs API response.")
+            all_checks.extend(check for check in check_runs if isinstance(check, dict))
+            match = re.search(r'<([^>]+)>;\\s*rel="next"', link_header)
+            next_url = match.group(1) if match else None
+        if all_checks:
             failures = {"failure", "timed_out", "cancelled", "action_required", "stale", "startup_failure"}
-            if any(
-                isinstance(check, dict)
-                and str(check.get("conclusion", "")).lower() in failures
-                for check in check_runs
-            ):
+            if any(str(check.get("conclusion", "")).lower() in failures for check in all_checks):
                 return "failure"
             if any(
-                not isinstance(check, dict)
-                or check.get("status") != "completed"
-                or not check.get("conclusion")
-                for check in check_runs
+                check.get("status") != "completed" or not check.get("conclusion")
+                for check in all_checks
             ):
                 return "pending"
             return "success"
