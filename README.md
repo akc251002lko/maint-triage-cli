@@ -180,6 +180,9 @@ maint-triage-cli/
 │
 ├── triage.py
 ├── README.md
+├── CONTRIBUTING.md
+├── SECURITY.md
+├── CODE_OF_CONDUCT.md
 ├── LICENSE
 └── .gitignore
 ```
