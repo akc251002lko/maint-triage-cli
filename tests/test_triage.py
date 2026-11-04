@@ -17,6 +17,7 @@ from triage import (
     fetch_open_items,
     fetch_ci_state,
     display_terminal_report,
+    main,
 )
 
 
@@ -357,6 +358,16 @@ class TestReviewAndCiIntelligence(unittest.TestCase):
         ]
         self.assertEqual(fetch_ci_state("psf", "requests", "abc123"), "success")
         self.assertEqual(mock_get.call_count, 2)
+
+
+    @patch("triage.sys.argv", ["triage.py", "--repo", "psf/requests", "--format", "markdown"])
+    @patch("triage.fetch_open_items", return_value=[])
+    @patch("triage.fetch_open_pull_requests", return_value=[])
+    def test_markdown_cli_stdout_contains_only_markdown(self, _pulls, _items):
+        output = StringIO()
+        with redirect_stdout(output):
+            self.assertEqual(main(), 0)
+        self.assertTrue(output.getvalue().startswith("# Triage Report: psf/requests"))
 
     def test_report_contains_new_intelligence_counts(self):
         categories = {
