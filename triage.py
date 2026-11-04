@@ -161,6 +161,44 @@ def fetch_open_items(owner, name, token=None):
     return all_items
 
 
+def fetch_ci_state(owner: str, name: str, head_sha: str, token: str | None = None) -> str:
+    """Return aggregate GitHub Actions check state, falling back to commit statuses."""
+    owner_q = urllib.parse.quote(owner, safe="")
+    name_q = urllib.parse.quote(name, safe="")
+    commit_q = urllib.parse.quote(head_sha, safe="")
+    checks_url = f"{API}/repos/{owner_q}/{name_q}/commits/{commit_q}/check-runs?per_page=100"
+    try:
+        payload, _ = github_get(checks_url, token)
+        check_runs = payload.get("check_runs") if isinstance(payload, dict) else None
+        if isinstance(check_runs, list) and check_runs:
+            failures = {"failure", "timed_out", "cancelled", "action_required", "stale", "startup_failure"}
+            if any(
+                isinstance(check, dict)
+                and str(check.get("conclusion", "")).lower() in failures
+                for check in check_runs
+            ):
+                return "failure"
+            if any(
+                not isinstance(check, dict)
+                or check.get("status") != "completed"
+                or not check.get("conclusion")
+                for check in check_runs
+            ):
+                return "pending"
+            return "success"
+    except TriageError as error:
+        logger.warning("Could not inspect check runs for commit %s: %s", head_sha, error)
+
+    status_url = f"{API}/repos/{owner_q}/{name_q}/commits/{commit_q}/status"
+    try:
+        status, _ = github_get(status_url, token)
+        if isinstance(status, dict):
+            return str(status.get("state", "unknown")).lower()
+    except TriageError as error:
+        logger.warning("Could not inspect commit status for %s: %s", head_sha, error)
+    return "unknown"
+
+
 def fetch_open_pull_requests(owner: str, name: str, token: str | None = None) -> list[dict[str, Any]]:
     """Fetch open PRs with reviewer, draft, and head-commit metadata."""
     owner_q = urllib.parse.quote(owner, safe="")
@@ -172,20 +210,12 @@ def fetch_open_pull_requests(owner: str, name: str, token: str | None = None) ->
         if not isinstance(data, list):
             raise TriageError("Unexpected pull request API response.")
         results.extend(data)
-        match = re.search(r'<([^>]+)>;\s*rel="next"', link_header)
+        match = re.search(r'<([^>]+)>;\\s*rel="next"', link_header)
         url = match.group(1) if match else None
     for item in results:
         item["pull_request"] = item.get("pull_request", {"url": item.get("url", "")})
         head = item.get("head", {}).get("sha")
-        item["ci_state"] = "unknown"
-        if head:
-            status_url = f"{API}/repos/{owner_q}/{name_q}/commits/{urllib.parse.quote(head, safe='')}/status"
-            try:
-                status, _ = github_get(status_url, token)
-                if isinstance(status, dict):
-                    item["ci_state"] = str(status.get("state", "unknown"))
-            except TriageError as error:
-                logger.warning("Could not inspect CI status for PR #%s: %s", item.get("number"), error)
+        item["ci_state"] = fetch_ci_state(owner, name, head, token) if head else "unknown"
     return results
 
 def days_since(timestamp, now=None):
@@ -492,7 +522,8 @@ def main() -> int:
                 paint(
                     f"\nAnalyzing {owner}/{name}...",
                     Colors.CYAN,
-                )
+                ),
+                file=sys.stderr,
             )
 
         now = datetime.now(timezone.utc)
@@ -514,7 +545,7 @@ def main() -> int:
             now,
         )
 
-        if args.format == "markdown":
+        if args.format == "text" and sys.stdout.isatty():
             display_terminal_report(report)
 
         print(render_report(report, args.format))
