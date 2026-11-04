@@ -231,11 +231,15 @@ The application follows a lightweight, standard-library-only architecture.
 - CI attention uses commit combined status; repositories relying exclusively on GitHub Checks may show an unknown status.
 - The tool reports findings only and does not automatically close issues, merge PRs, or change labels.
 
+## Security
+
+Review [SECURITY.md](SECURITY.md) for vulnerability reporting and credential-handling guidance.
+
 ## Contributing
 
 Contributions, bug reports, and feature suggestions are welcome.
 
-Please review the contribution guidelines before submitting changes.
+Please review [CONTRIBUTING.md](CONTRIBUTING.md) before submitting changes.
 
 ## Community & Support
 
