@@ -24,6 +24,7 @@ from typing import Any
 API = "https://api.github.com"
 TIMEOUT = 30
 PER_PAGE = 100
+MAX_RESPONSE_BYTES = 25 * 1024 * 1024
 logger = logging.getLogger("maint_triage_cli")
 
 
@@ -91,7 +92,10 @@ def github_get(url: str, token: str | None = None) -> tuple[Any, str]:
             timeout=TIMEOUT,
         ) as response:
 
-            data = json.loads(response.read().decode("utf-8"))
+            raw_data = response.read(MAX_RESPONSE_BYTES + 1)
+            if len(raw_data) > MAX_RESPONSE_BYTES:
+                raise TriageError("GitHub API response exceeded the 25 MiB safety limit.")
+            data = json.loads(raw_data.decode("utf-8"))
             next_link = response.headers.get("Link", "")
 
             return data, next_link
