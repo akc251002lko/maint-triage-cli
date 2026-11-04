@@ -41,13 +41,13 @@ class Colors:
     RESET = "\033[0m"
 
 
-def paint(value, color):
+def paint(value: Any, color: str) -> str:
     if sys.stdout.isatty() and "NO_COLOR" not in os.environ:
         return f"{color}{value}{Colors.RESET}"
     return str(value)
 
 
-def validate_repo(repo):
+def validate_repo(repo: str) -> tuple[str, str]:
     """Validate GitHub owner/repository identifier."""
 
     if not isinstance(repo, str) or repo.count("/") != 1:
@@ -134,7 +134,7 @@ def github_get(url: str, token: str | None = None) -> tuple[Any, str]:
         raise TriageError("GitHub returned an invalid JSON response.")
 
 
-def fetch_open_items(owner, name, token=None):
+def fetch_open_items(owner: str, name: str, token: str | None = None) -> list[dict[str, Any]]:
     """Fetch all open issues and pull requests using pagination."""
 
     owner = urllib.parse.quote(owner, safe="")
@@ -235,7 +235,7 @@ def fetch_open_pull_requests(owner: str, name: str, token: str | None = None) ->
         item["ci_state"] = fetch_ci_state(owner, name, head, token) if head else "unknown"
     return results
 
-def days_since(timestamp, now=None):
+def days_since(timestamp: str, now: datetime | None = None) -> int:
     """Calculate the age of the last update in whole days."""
 
     try:
@@ -307,7 +307,7 @@ def classify_items(items: list[dict[str, Any]], threshold: int, now: datetime) -
     }
 
 
-def format_item(item, now):
+def format_item(item: dict[str, Any], now: datetime) -> dict[str, Any]:
     """Format one GitHub issue or pull request."""
 
     age = days_since(item.get("updated_at"), now)
@@ -356,7 +356,7 @@ def build_report(repo, categories, threshold, now):
     }
 
 
-def markdown_section(title, items):
+def markdown_section(title: str, items: list[dict[str, Any]]) -> str:
     """Generate a Markdown report section."""
 
     lines = [f"## {title} ({len(items)})", ""]
@@ -375,7 +375,7 @@ def markdown_section(title, items):
     return "\n".join(lines)
 
 
-def text_section(title, items):
+def text_section(title: str, items: list[dict[str, Any]]) -> str:
     """Generate a plain-text report section."""
 
     lines = [f"{title} ({len(items)})"]
@@ -456,7 +456,7 @@ def render_report(report, output_format):
     return "\n\n".join(output)
 
 
-def display_terminal_report(report):
+def display_terminal_report(report: dict[str, Any]) -> None:
     """Display a professional terminal summary."""
 
     summary = report["summary"]
