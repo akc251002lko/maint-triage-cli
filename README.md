@@ -255,3 +255,7 @@ This project is distributed under the MIT License. See [LICENSE](LICENSE) for de
 ---
 
 **maint-triage-cli** — Better visibility. Smarter triage. Healthier repositories.
+
+---
+
+**Maintained by [Arun Kumar](https://github.com/akc251002lko).**
