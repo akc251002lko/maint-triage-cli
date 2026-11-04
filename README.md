@@ -58,7 +58,7 @@ Navigate into the project:
 cd maint-triage-cli
 ```
 
-## How to Use
+## How To Use
 
 Run the tool using Python:
 
