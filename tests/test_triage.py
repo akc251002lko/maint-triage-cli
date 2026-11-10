@@ -364,6 +364,16 @@ class TestReviewAndCiIntelligence(unittest.TestCase):
         self.assertEqual(mock_get.call_count, 2)
 
     @patch("triage.github_get")
+    def test_check_run_pagination_follows_next_link(self, mock_get):
+        mock_get.side_effect = [
+            ({"check_runs": []}, '<https://api.github.com/repos/psf/requests/commits/abc/check-runs?per_page=100&page=2>; rel="next"'),
+            ({"check_runs": [{"status": "completed", "conclusion": "success"}]}, ""),
+            ({"state": "success"}, ""),
+        ]
+        self.assertEqual(fetch_ci_state("psf", "requests", "abc"), "success")
+        self.assertEqual(mock_get.call_count, 3)
+
+    @patch("triage.github_get")
     def test_empty_check_runs_fall_back_to_commit_status(self, mock_get):
         mock_get.side_effect = [
             ({"check_runs": []}, ""),
