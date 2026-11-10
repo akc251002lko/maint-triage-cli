@@ -181,7 +181,7 @@ def fetch_ci_state(owner: str, name: str, head_sha: str, token: str | None = Non
             if not isinstance(check_runs, list):
                 raise TriageError("Unexpected GitHub check-runs API response.")
             all_checks.extend(check for check in check_runs if isinstance(check, dict))
-            match = re.search(r'<([^>]+)>;\\s*rel="next"', link_header)
+            match = re.search(r'<([^>]+)>;\s*rel="next"', link_header)
             next_url = match.group(1) if match else None
         if all_checks:
             failures = {"failure", "timed_out", "cancelled", "action_required", "stale", "startup_failure"}
@@ -227,7 +227,7 @@ def fetch_open_pull_requests(owner: str, name: str, token: str | None = None) ->
         if not isinstance(data, list):
             raise TriageError("Unexpected pull request API response.")
         results.extend(data)
-        match = re.search(r'<([^>]+)>;\\s*rel="next"', link_header)
+        match = re.search(r'<([^>]+)>;\s*rel="next"', link_header)
         url = match.group(1) if match else None
     for item in results:
         item["pull_request"] = item.get("pull_request", {"url": item.get("url", "")})
